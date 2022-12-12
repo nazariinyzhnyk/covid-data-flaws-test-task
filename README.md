@@ -7,8 +7,10 @@ To reproduce:
 - copy data from <i>csse_covid_19_daily_reports</i> to <i>data</i> dir
 - install requirements from [requirements.txt](requirements.txt) 
 (could use Pipenv with pipfile, but for this project I just decided to stick to virtualenv)
-- run [data_merge.py](flaws_correction/data_merge.py) in order to get a single file with
-all necessary aggregated info
+- run [data_merge.py](flaws_correction/data_merge.py) in order to get a single file for each country with
+all necessary aggregated info. in addition, file with Latitude and Longitude will be generated containing info 
+about countries coordinates. with this file we'll be able to aggregate info about situation with COVID for each 
+country using neighbouring countries
 - go to [test_task_solution.ipynb](test_task_solution.ipynb) and run code cell by cell
 - all custom data flaws correction modules are developed and stored in
 [flaws_correction](flaws_correction) python package - this is the one that should be used
