@@ -1,8 +1,18 @@
 # COVID-19 test task
 
-## My solutions
+## My solution
 
-
+To reproduce:
+- download data from link (see Data chapter)
+- copy data from <i>csse_covid_19_daily_reports</i> to <i>data</i> dir
+- install requirements from [requirements.txt](requirements.txt) 
+(could use Pipenv with pipfile, but for this project I just decided to stick to virtualenv)
+- run [data_merge.py](flaws_correction/data_merge.py) in order to get a single file with
+all necessary aggregated info
+- go to [test_task_solution.ipynb](test_task_solution.ipynb) and run code cell by cell
+- all custom data flaws correction modules are developed and stored in
+[flaws_correction](flaws_correction) python package - this is the one that should be used
+later on in production if needed
 
 ## Task description
 
@@ -18,10 +28,15 @@ have a huge impact on decision-making and could save
 lives.
 
 ## Data
+
 [Link to download](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports).
+
+~7Gb if cloning the whole repository.
+
 Load the first 6 months of the data.
 
 ## Tasks
+
 1. You’re given raw data that contains many flaws. 
 Please find 5 different flaws in the data and fix them. 
 Try to find the most important flaws that require 
@@ -31,6 +46,10 @@ the process required for forecasting the future number
 of active patients per country.
 
 ## Task goals
-1. Understanding the quality of your coding skills. We do not expect this code to be production-ready, but production oriented. It means we expect organized code that will require minimal refactoring to be used as part of a daily forecasting production code.
+
+1. Understanding the quality of your coding skills. 
+We do not expect this code to be production-ready, but production oriented. 
+It means we expect organized code that will require minimal refactoring to be 
+used as part of a daily forecasting production code.
 2. Understanding the way you think, analyze, and tackle data flaws.
 3. Examine your creativity and ML knowledge.
