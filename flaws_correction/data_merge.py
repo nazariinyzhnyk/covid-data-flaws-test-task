@@ -1,6 +1,7 @@
+import math
 import os
 import shutil
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -20,11 +21,13 @@ class DataParser:
             self.cols_to_record = ['Confirmed', 'Deaths', 'Recovered', 'Active', 'Incident_Rate', 'Case_Fatality_Ratio']
 
         self.date_seq = get_date_sequence(start_date, end_date)
+        self.get_countries_coordinates()
         self.parse_files()
 
     def parse_files(self) -> None:
         # TODO:: develop concurrent files processing
 
+        dct: Dict[str, Dict[str, Any]] = {}
         for i, current_date in enumerate(self.date_seq):
             print(f"Processing: {current_date}")
             table_path = os.path.join(self.path_to_data, current_date) + ".csv"
@@ -33,29 +36,35 @@ class DataParser:
                 continue
 
             df = pd.read_csv(table_path)
-            if i == 0:
-                # init all necessary objects on first iteration
-                # save countries coordinates once
-                df[["Lat", "Long_", "Combined_Key"]].to_csv(
-                    os.path.join(self.out_dir, "countries_coordinates.csv"),
-                    index=False
-                )
-
-                # init dict to save all features
-                dct = {}
-                for region_to_record in df["Combined_Key"].to_list():
-                    dct[region_to_record] = {col_to_rec: [] for col_to_rec in self.cols_to_record}
-                    dct[region_to_record]["date"] = []
-
             for _, row in df.iterrows():
+                if "Country/Region" in df.columns:
+                    # old format file - need to process
+                    if pd.isna(row['Province/State']):
+                        row["Combined_Key"] = row["Country/Region"]
+                    else:
+                        row["Combined_Key"] = row["Province/State"] + ", " + row["Country/Region"]
+
                 region_key = row["Combined_Key"]
+                if region_key not in dct:
+                    dct[region_key] = {col_to_rec: [] for col_to_rec in self.cols_to_record}
+                    dct[region_key]["date"] = []
+
                 dct[region_key]["date"].append(current_date)
                 for col_to_rec in self.cols_to_record:
-                    dct[region_key][col_to_rec].append(row[col_to_rec])
+                    if col_to_rec in df.columns:
+                        dct[region_key][col_to_rec].append(row[col_to_rec])
+                    else:
+                        dct[region_key][col_to_rec].append(math.nan)
 
         for country_name, country_dct in dct.items():
             country_csv_path = os.path.join(self.out_dir, country_name) + ".csv"
             pd.DataFrame(country_dct).to_csv(country_csv_path, index=False)
+
+    def get_countries_coordinates(self, donor_file: str = "01-01-2022.csv") -> None:
+        df = pd.read_csv(os.path.join(self.path_to_data, donor_file))
+        df = df[["Lat", "Long_", "Combined_Key"]]
+        df.columns = ["latitude", "longitude", "region_key"]
+        df.to_csv(os.path.join(self.out_dir, "countries_coordinates.csv"), index=False)
 
     def __validate_path(self) -> None:
         if not os.path.exists(self.path_to_data):
@@ -73,6 +82,6 @@ if __name__ == '__main__':
     # see EDA notebook with explanations of date selection
     dp = DataParser(
         path_to_data=os.path.join("..", "data", "csse_covid_19_daily_reports"),
-        start_date="2022-01-21",
-        end_date="2022-06-21"
+        start_date="2020-01-22",
+        end_date="2020-06-22"
     )
